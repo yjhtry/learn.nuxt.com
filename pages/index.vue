@@ -8,8 +8,18 @@ function onToggleDark() {
 </script>
 
 <template>
-  <div text-red>
-    Hello World! {{`(${ x  }, ${y})`}}
-    <button @click="onToggleDark">toggle dark</button>
+  <div class="grid grid-cols-[1fr_2fr] h-full">
+    <div class="border-r border-base p-4">
+      Col1
+      <div text-red>
+        Hello World! {{ `(${x}, ${y})` }}
+        <button @click="onToggleDark">
+          toggle dark
+        </button>
+      </div>
+    </div>
+    <div p-4>
+      Col2
+    </div>
   </div>
 </template>
