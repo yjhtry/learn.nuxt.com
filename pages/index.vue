@@ -19,7 +19,7 @@ function onToggleDark() {
       </div>
     </div>
     <div p-4>
-      Col2
+      <TheWebContainer />
     </div>
   </div>
 </template>
