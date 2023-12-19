@@ -1,30 +1,33 @@
 <script setup lang="ts">
-type Status = 'init' | 'mounting' | 'installing' | 'ready' | 'start' | 'error'
+import 'xterm/css/xterm.css'
+
+type Status = 'init' | 'mount' | 'install' | 'ready' | 'start' | 'error'
 const iframe = ref<HTMLIFrameElement>()
 const wcUrl = ref<string>()
 const error = shallowRef<{ message: string }>()
 const status = ref<Status>('init')
+const stream = shallowRef<ReadableStream<string>>()
+
+function loadFiles() {
+  const rawFiles = import.meta.glob(['../templates/**/*.*', '!../templates/**/node_modules'], { eager: true, as: 'raw' })
+  const files = Object.fromEntries(
+    Object.entries(rawFiles).map(([path, contents]) => [
+      path.replace('../templates/basic/', ''),
+      {
+        file: { contents },
+      },
+    ]),
+  )
+
+  return files
+}
 
 async function startDevServer() {
   const wc = await useWebContainer()
 
-  status.value = 'mounting'
-  await wc.mount({
-    'package.json': {
-      file: {
-        contents: JSON.stringify({
-          name: 'web-container',
-          version: '1.0.0',
-          scripts: {
-            dev: 'nuxt dev',
-          },
-          dependencies: {
-            nuxt: 'latest',
-          },
-        }, null, 2),
-      },
-    },
-  })
+  status.value = 'mount'
+
+  await wc.mount(loadFiles())
 
   wc.on('server-ready', (_, url) => {
     (wcUrl.value = url)
@@ -36,8 +39,10 @@ async function startDevServer() {
     status.value = 'error'
   })
 
-  status.value = 'installing'
+  status.value = 'install'
   const installProcess = await wc.spawn('npm', ['install'])
+  stream.value = installProcess.output
+
   const installExitCode = await installProcess.exit
 
   if (installExitCode) {
@@ -49,7 +54,8 @@ async function startDevServer() {
   }
 
   status.value = 'start'
-  await wc.spawn('npm', ['run', 'dev'])
+  const devProcess = await wc.spawn('npm', ['run', 'dev'])
+  stream.value = devProcess.output
 }
 
 watchEffect(() => {
@@ -73,9 +79,12 @@ onMounted(startDevServer)
 </script>
 
 <template>
-  <iframe v-show="status === 'ready'" ref="iframe" w-full h-full />
-  <div v-show="status !== 'ready'" w-full h-full flex gap-2 items-center justify-center>
-    <div i-eos-icons-bubble-loading icon-btn text-2xl />
-    {{ status }}
+  <div h-full flex flex-col>
+    <iframe v-show="status === 'ready'" ref="iframe" w-full h-full />
+    <div v-if="status !== 'ready'" w-full h-full flex flex-col gap-2 items-center justify-center>
+      <div i-eos-icons-bubble-loading icon-btn text-2xl />
+      {{ status }}ing...
+    </div>
+    <TerminalOutput :stream="stream" />
   </div>
 </template>

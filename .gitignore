@@ -22,3 +22,6 @@ logs
 .env
 .env.*
 !.env.example
+
+templates/**/node_modules
+templates/**/.nuxt
