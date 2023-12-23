@@ -3,6 +3,7 @@
     <div i-logos-nuxt-icon icon-btn text-4xl />
     <span text-2xl>learn.nuxt.com</span>
     <div flex-auto />
+    <ColorThemeBtn />
     <NuxtLink
       p2 rounded
       hover:bg-gray:10
