@@ -10,7 +10,7 @@ const { x, y } = useMouse()
         Hello World! {{ `(${x}, ${y})` }}
       </div>
     </div>
-    <div p-4>
+    <div h-full of-hidden>
       <ThePlayground />
     </div>
   </div>

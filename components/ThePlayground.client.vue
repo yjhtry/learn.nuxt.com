@@ -56,6 +56,13 @@ async function startDevServer() {
   status.value = 'start'
   const devProcess = await wc.spawn('npm', ['run', 'dev'])
   stream.value = devProcess.output
+
+  // kill previous process on hot reload
+  if (import.meta.hot) {
+    import.meta.hot.accept(() => {
+      devProcess.kill()
+    })
+  }
 }
 
 watchEffect(() => {
@@ -79,12 +86,12 @@ onMounted(startDevServer)
 </script>
 
 <template>
-  <div h-full flex flex-col>
+  <div grid="~ rows-[2fr_1fr]" class="of-hidden h-full relative">
     <iframe v-show="status === 'ready'" ref="iframe" w-full h-full />
-    <div v-if="status !== 'ready'" w-full h-full flex flex-col gap-2 items-center justify-center>
+    <div v-if="status !== 'ready'" flex="~ col gap-2 items-center justify-center" class="w-full h-full capitalize">
       <div i-eos-icons-bubble-loading icon-btn text-2xl />
       {{ status }}ing...
     </div>
-    <TerminalOutput :stream="stream" />
+    <TerminalOutput :stream="stream" min-h-0 />
   </div>
 </template>
