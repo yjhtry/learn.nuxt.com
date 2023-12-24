@@ -1,7 +1,9 @@
 <template>
   <nav border="b base" text="lg" flex="~ gap-2 items-center" class="px6 py4 h-18">
-    <div i-logos-nuxt-icon icon-btn text-4xl />
-    <span text-2xl>learn.nuxt.com</span>
+    <NuxtLink href="/" title="Nuxt Playground" flex="~ items-baseline gap-2">
+      <NuxtLogo h-5 />
+      <span text-xl>Playground</span>
+    </NuxtLink>
     <div flex-auto />
     <ColorThemeBtn />
     <NuxtLink
